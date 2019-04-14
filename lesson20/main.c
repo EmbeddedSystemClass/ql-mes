@@ -18,8 +18,13 @@ int main() {
     while (1) {
         //GPIOF_AHB->DATA_Bits[LED_GREEN] = LED_GREEN;
         //GPIOF_AHB->DATA_Bits[LED_GREEN] = 0U;
+        __disable_irq();
         GPIOF_AHB->DATA |= LED_GREEN;
+        __enable_irq();
+
+        __disable_irq();
         GPIOF_AHB->DATA &= ~LED_GREEN;
+        __enable_irq();
     }
     //return 0;
 }
