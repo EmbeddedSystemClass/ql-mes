@@ -8,11 +8,11 @@
  * Quantum Leaps, www.state-machine.com
  *
  * NOTE:
- * The function assert_failed defined at the end of this file defines
+ * The function Q_onAssert defined at the end of this file defines
  * the error/assertion handling policy for the application and might
  * need to be customized for each project. This function is defined in
  * assembly to re-set the stack pointer, in case it is corrupted by the
- * time assert_failed is called.
+ * time Q_onAssert is called.
  */
 /* Copyright (c) 2011 - 2014 ARM LIMITED
 
@@ -48,13 +48,13 @@ extern int __stack_end__;
 /* Weak prototypes for error handlers --------------------------------------*/
 /**
 * \note
-* The function assert_failed defined at the end of this file defines
+* The function Q_onAssert defined at the end of this file defines
 * the error/assertion handling policy for the application and might
 * need to be customized for each project. This function is defined in
 * assembly to avoid accessing the stack, which might be corrupted by
-* the time assert_failed is called.
+* the time Q_onAssert is called.
 */
-__attribute__ ((naked)) void assert_failed(char const *module, int loc);
+__attribute__ ((naked)) void Q_onAssert(char const *module, int loc);
 
 /* Function prototypes -----------------------------------------------------*/
 void Default_Handler(void);  /* Default empty handler */
@@ -391,7 +391,7 @@ void Reset_Handler(void) {
     }
 
     /* the previous code should not return, but assert just in case... */
-    assert_failed("Reset_Handler", __LINE__);
+    Q_onAssert("Reset_Handler", __LINE__);
 }
 
 
@@ -401,7 +401,7 @@ void NMI_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_nmi\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_nmi: .asciz \"NMI\"\n\t"
         "  .align 2\n\t"
     );
@@ -412,7 +412,7 @@ void MemManage_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_mem\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_mem: .asciz \"MemManage\"\n\t"
         "  .align 2\n\t"
     );
@@ -423,7 +423,7 @@ void HardFault_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_hrd\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_hrd: .asciz \"HardFault\"\n\t"
         "  .align 2\n\t"
     );
@@ -434,7 +434,7 @@ void BusFault_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_bus\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_bus: .asciz \"BusFault\"\n\t"
         "  .align 2\n\t"
     );
@@ -445,7 +445,7 @@ void UsageFault_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_usage\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_usage: .asciz \"UsageFault\"\n\t"
         "  .align 2\n\t"
     );
@@ -456,7 +456,7 @@ void Default_Handler(void) {
     __asm volatile (
         "    ldr r0,=str_dflt\n\t"
         "    mov r1,#1\n\t"
-        "    b assert_failed\n\t"
+        "    b Q_onAssert\n\t"
         "str_dflt: .asciz \"Default\"\n\t"
         "  .align 2\n\t"
     );

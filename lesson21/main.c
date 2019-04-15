@@ -1,27 +1,55 @@
 #include <stdint.h>
 #include "bsp.h"
-#include "TM4C123GH6PM.h"
 
-
-
+#if 0
+/* background code: sequential with blocking version */
 int main() {
-    SYSCTL->RCGCGPIO  |= (1U << 5); /* enable Run mode for GPIOF */
-    SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
-    GPIOF_AHB->DIR |= (LED_RED | LED_BLUE | LED_GREEN);
-    GPIOF_AHB->DEN |= (LED_RED | LED_BLUE | LED_GREEN);
-
-    SysTick->LOAD = SYS_CLOCK_HZ/2U - 1U;
-    SysTick->VAL  = 0U;
-    SysTick->CTRL = (1U << 2) | (1U << 1) | 1U;
-
-    SysTick_Handler();
-
-    __enable_irq();
+	  BSP_init();
     while (1) {
-        GPIOF_AHB->DATA_Bits[LED_GREEN] = LED_GREEN;
+			  BSP_ledGreenOn();
         BSP_delay(BSP_TICKS_PER_SEC / 4U);
-        GPIOF_AHB->DATA_Bits[LED_GREEN] = 0U;
-        BSP_delay(BSP_TICKS_PER_SEC / 4U);
+			  BSP_ledGreenOff();
+        BSP_delay(BSP_TICKS_PER_SEC * 3U / 4U);
+    }
+
+    //return 0;
+}
+#endif
+
+/* background code: non-blocking version */
+int main() {
+    BSP_init();
+    while (1) {
+        /* Blinky polling state machine */
+        static enum {
+            INITIAL,
+            OFF_STATE,
+            ON_STATE
+        } state = INITIAL;
+        static uint32_t start;
+        switch (state) {
+            case INITIAL:
+                start = BSP_tickCtr();
+                state = OFF_STATE; /* initial transition */
+                break;
+            case OFF_STATE:
+                if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC * 3U / 4U) {
+                    BSP_ledGreenOn();
+                    start = BSP_tickCtr();
+                    state = ON_STATE; /* state transition */
+                }
+                break;
+            case ON_STATE:
+                if ((BSP_tickCtr() - start) > BSP_TICKS_PER_SEC / 4U) {
+                    BSP_ledGreenOff();
+                    start = BSP_tickCtr();
+                    state = OFF_STATE; /* state transition */
+                }
+                break;
+            default:
+                //error();
+                break;
+        }
     }
     //return 0;
 }
