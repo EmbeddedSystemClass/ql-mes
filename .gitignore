@@ -1,6 +1,7 @@
 RemoteSystemsTempFiles/
 .jxbrowser-data/
 dvt/
+.launches/
 
 # Prerequisites
 *.d
