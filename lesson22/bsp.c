@@ -75,7 +75,7 @@ void BSP_ledGreenOff(void) {
 }
 
 
-__attribute__((naked)) /*__stackless*/ void Q_onAssert(char const *module, int loc) {
+/*__attribute__((naked)) __stackless*/ void Q_onAssert(char const *module, int loc) {
     /* TBD: damage control */
     (void)module; /* avoid the "unused parameter" compiler warning */
     (void)loc;    /* avoid the "unused parameter" compiler warning */
