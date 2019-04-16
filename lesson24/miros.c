@@ -42,7 +42,16 @@ void OS_init(void) {
 }
 
 void OS_sched(void) {
-    /* OS_next = ... */
+    extern OSThread blinky1;
+    extern OSThread blinky2;
+
+    if (OS_curr == &blinky2) {
+        OS_next = &blinky1;
+    }
+    else {
+        OS_next = &blinky2;
+    }
+
     if (OS_next != OS_curr) {
         *(uint32_t volatile *)0xE000ED04 = (1U << 28);
     }

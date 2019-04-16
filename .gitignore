@@ -43,7 +43,7 @@ dvt/
 *.hex
 
 # Debug files
-/Debug/
+Debug/
 *.dSYM/
 *.su
 *.idb
