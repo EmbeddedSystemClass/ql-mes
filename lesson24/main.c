@@ -27,27 +27,41 @@ void main_blinky2() {
 }
 
 
+uint32_t stack_blinky3[40];
+OSThread blinky3;
+void main_blinky3() {
+    while (1) {
+        BSP_ledRedOn();
+        BSP_delay(BSP_TICKS_PER_SEC / 1U);
+        BSP_ledRedOff();
+        BSP_delay(BSP_TICKS_PER_SEC / 5U);
+    }
+}
+
+
 /* background code: sequential with blocking version */
 int main() {
-    int volatile run = 0;
 
 	BSP_init();
 	OS_init();
 
-    /* fabricate Cortex-M ISR stack frame for blinky1 */
+    /* start blinky1 thread */
     OSThread_start(&blinky1,
                    &main_blinky1,
                    stack_blinky1, sizeof(stack_blinky1));
 
-    /* fabricate Cortex-M ISR stack frame for blinky2 */
+    /* start blinky2 thread */
     OSThread_start(&blinky2,
                    &main_blinky2,
                    stack_blinky2, sizeof(stack_blinky2));
 
+    /* start blinky3  thread */
+    OSThread_start(&blinky3,
+                   &main_blinky3,
+                   stack_blinky3, sizeof(stack_blinky3));
 
-    while (1) {
-        run ^= run;
-    }
+
+    OS_run();
 
     //return 0;
 }

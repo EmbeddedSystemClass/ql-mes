@@ -3,8 +3,6 @@
 
 #include "bsp.h"
 #include "miros.h"
-#include "system_TM4C123GH6PM.h"
-#include "TM4C123GH6PM.h" /* the TM4C MCU Peripheral Access Layer (TI) */
 
 
 /* on-board LEDs */
@@ -28,11 +26,6 @@ void BSP_init(void) {
     SYSCTL->GPIOHBCTL |= (1U << 5); /* enable AHB for GPIOF */
     GPIOF_AHB->DIR |= (LED_RED | LED_BLUE | LED_GREEN);
     GPIOF_AHB->DEN |= (LED_RED | LED_BLUE | LED_GREEN);
-
-    SystemCoreClockUpdate();
-    SysTick_Config(SystemCoreClock / BSP_TICKS_PER_SEC);
-
-    __enable_irq();
 }
 
 uint32_t BSP_tickCtr(void) {
@@ -73,6 +66,14 @@ void BSP_ledGreenOn(void) {
 
 void BSP_ledGreenOff(void) {
     GPIOF_AHB->DATA_Bits[LED_GREEN] = 0U;
+}
+
+void OS_onStartup(void) {
+    SystemCoreClockUpdate();
+    SysTick_Config(SystemCoreClock / BSP_TICKS_PER_SEC);
+
+    /* set the SysTick interrupt priority (highest) */
+    NVIC_SetPriority(SysTick_IRQn, 0U);
 }
 
 

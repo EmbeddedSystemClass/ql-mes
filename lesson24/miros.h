@@ -43,6 +43,12 @@ void OS_init(void);
 /* this function must be called with interrupts DISABLED */ 
 void OS_sched(void);
 
+/* transfer to configure and start interrupts */
+void OS_run(void);
+
+/* callback to configure and start interrupts */
+void OS_onStartup(void);
+
 void OSThread_start(
     OSThread *me,
     OSThreadHandler threadHandler,
