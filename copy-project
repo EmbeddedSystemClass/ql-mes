@@ -1,0 +1,9 @@
+$ cd ../lesson25
+$ find . -type f -exec sed -i.~ "s/lesson24/lesson25/g" {} \;
+$ rm Debug/*.~
+$ rm .settings/*.~
+$ rm .launches/*
+$ rm targetConfigs/*.~
+$ rm *.~
+$ rm .*.~
+$ ll
