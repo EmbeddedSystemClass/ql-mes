@@ -2,6 +2,7 @@
 
 Q_DEFINE_THIS_FILE
 
+QXSemaphore SW1_sema;
 
 uint32_t stack_blinky1[40];
 QXThread blinky1;
@@ -9,8 +10,8 @@ void main_blinky1(QXThread * const me) {
     while (1) {
         uint32_t volatile i;
         for (i = 1500U; i != 0U; --i) {
-            if (i%150 == 0) BSP_ledGreenOn();
-            if (i%77 == 0) BSP_ledGreenOff();
+            BSP_ledGreenOn();
+            BSP_ledGreenOff();
         }
         QXThread_delay(1U); /* block for 1 tick */
     }
@@ -21,11 +22,14 @@ QXThread blinky2;
 void main_blinky2(QXThread * const me) {
     while (1) {
         uint32_t volatile i;
+
+        QXSemaphore_wait(&SW1_sema,  /* pointer to semaphore to wait on */
+                         QXTHREAD_NO_TIMEOUT); /* timeout for waiting */
+
         for (i = 3*1500U; i != 0U; --i) {
-            if (i%200 == 0) BSP_ledBlueOn();
-            if (i%33 == 0) BSP_ledBlueOff();
+            BSP_ledBlueOn();
+            BSP_ledBlueOff();
         }
-        QXThread_delay(10U); /* block for 10 ticks */
     }
 }
 
@@ -40,39 +44,39 @@ void main_blinky3(QXThread * const me) {
     }
 }
 
-
-/* background code: sequential with blocking version */
 int main() {
-    QF_init();
     BSP_init();
+    QF_init();
 
-	QXThread_ctor(&blinky1, &main_blinky1, 0);
-    /* start blinky1 thread */
+    /* initialize the SW1_sema semaphore as binary, signaling semaphore */
+    QXSemaphore_init(&SW1_sema, /* pointer to semaphore to initialize */
+                     0U,  /* initial semaphore count (singaling semaphore) */
+                     1U); /* maximum semaphore count (binary semaphore) */
+
+    /* initialize and start blinky1 thread */
+    QXThread_ctor(&blinky1, &main_blinky1, 0);
     QXTHREAD_START(&blinky1,
-                   5U,
-                   (void *)0, 0, /* message queue buffer and size */
-                   stack_blinky1, sizeof(stack_blinky1),
-                   (void *)0);
+                   5U, /* priority */
+                   (void *)0, 0, /* message queue (not used) */
+                   stack_blinky1, sizeof(stack_blinky1), /* stack */
+                   (void *)0); /* extra parameter (not used) */
 
+    /* initialize and start blinky2 thread */
     QXThread_ctor(&blinky2, &main_blinky2, 0);
-    /* start blinky2 thread */
     QXTHREAD_START(&blinky2,
-                   2U,
-                   (void *)0, 0, /* message queue buffer and size */
-                   stack_blinky2, sizeof(stack_blinky2),
-                   (void *)0);
+                   2U, /* priority */
+                   (void *)0, 0, /* message queue (not used) */
+                   stack_blinky2, sizeof(stack_blinky2), /* stack */
+                   (void *)0); /* extra parameter (not used) */
 
-    QXThread_ctor(&blinky3, &main_blinky3, 0);
-    /* start blinky3 thread */
-    QXTHREAD_START(&blinky3,
-                   1U,
-                   (void *)0, 0, /* message queue buffer and size */
-                   stack_blinky3, sizeof(stack_blinky3),
-                   (void *)0);
+    /* initialize and start blinky3 thread */
+    //QXThread_ctor(&blinky3, &main_blinky3, 0);
+    //QXTHREAD_START(&blinky3,
+    //               1U, /* priority */
+    //               (void *)0, 0, /* message queue (not used) */
+    //               stack_blinky3, sizeof(stack_blinky3), /* stack */
+    //               (void *)0); /* extra parameter (not used) */
 
-
-
-    QF_run();
-
-    //return 0;
+    /* transfer control to the RTOS to run the threads */
+    return QF_run();
 }
