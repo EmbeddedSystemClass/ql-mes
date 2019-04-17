@@ -1,8 +1,5 @@
 /* Board Support Package (BSP) for the EK-TM4C123GXL board */
-#include <stdint.h>  /* Standard integers. WG14/N843 C99 Standard */
-#include "qpc.h"
 #include "bsp.h"
-#include "qassert.h"
 #include "TM4C123GH6PM.h" /* the TM4C MCU Peripheral Access Layer (TI) */
 #include "system_TM4C123GH6PM.h"
 
@@ -72,8 +69,8 @@ void QF_onCleanup(void) {
 }
 
 void QXK_onIdle(void) {
-    GPIOF_AHB->DATA_Bits[LED_RED] = LED_RED;
-    GPIOF_AHB->DATA_Bits[LED_RED] = 0U;
+//    GPIOF_AHB->DATA_Bits[LED_RED] = LED_RED;
+//    GPIOF_AHB->DATA_Bits[LED_RED] = 0U;
 //    __WFI(); /* stop the CPU and Wait for Interrupt */
 }
 

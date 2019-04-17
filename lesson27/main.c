@@ -1,7 +1,4 @@
-#include <stdint.h>
-#include "qpc.h"
 #include "bsp.h"
-#include "qassert.h"
 
 Q_DEFINE_THIS_FILE
 
@@ -12,8 +9,8 @@ void main_blinky1(QXThread * const me) {
     while (1) {
         uint32_t volatile i;
         for (i = 1500U; i != 0U; --i) {
-            BSP_ledGreenOn();
-            BSP_ledGreenOff();
+            if (i%150 == 0) BSP_ledGreenOn();
+            if (i%77 == 0) BSP_ledGreenOff();
         }
         QXThread_delay(1U); /* block for 1 tick */
     }
@@ -25,10 +22,10 @@ void main_blinky2(QXThread * const me) {
     while (1) {
         uint32_t volatile i;
         for (i = 3*1500U; i != 0U; --i) {
-            BSP_ledBlueOn();
-            BSP_ledBlueOff();
+            if (i%200 == 0) BSP_ledBlueOn();
+            if (i%33 == 0) BSP_ledBlueOff();
         }
-        QXThread_delay(10U); /* block for 50 ticks */
+        QXThread_delay(10U); /* block for 10 ticks */
     }
 }
 
@@ -46,8 +43,8 @@ void main_blinky3(QXThread * const me) {
 
 /* background code: sequential with blocking version */
 int main() {
-	BSP_init();
-	QF_init();
+    QF_init();
+    BSP_init();
 
 	QXThread_ctor(&blinky1, &main_blinky1, 0);
     /* start blinky1 thread */

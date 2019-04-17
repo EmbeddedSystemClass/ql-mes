@@ -2,8 +2,7 @@
 #define __BSP_H__
 
 #include "qpc.h"
-//#include "system_TM4C123GH6PM.h"
-#include "TM4C123GH6PM.h" /* the TM4C MCU Peripheral Access Layer (TI) */
+#include "qassert.h"
 
 
 /* system clock tick [Hz] */
