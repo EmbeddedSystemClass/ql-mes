@@ -11,7 +11,11 @@
 /* on-board switch */
 #define BTN_SW1   (1U << 4)
 
-static QXSemaphore Morse_sema;
+//SEMA
+//static QXSemaphore Morse_sema;
+
+//MUTEX
+static QXMutex Morse_mutex;
 
 void SysTick_Handler(void) {
     QXK_ISR_ENTRY();  /* inform QXK about entering an ISR */
@@ -47,10 +51,14 @@ void BSP_init(void) {
     GPIOF_AHB->IEV &= ~BTN_SW1; /* a falling edge triggers the interrupt */
     GPIOF_AHB->IM  |= BTN_SW1;  /* enable GPIOF interrupt for SW1 */
 
-    /* initialize the Morse_sema semaphore as binary, signaling semaphore */
-    QXSemaphore_init(&Morse_sema, /* pointer to semaphore to initialize */
-                     1U,  /* initial semaphore count (singaling semaphore) */
-                     1U); /* maximum semaphore count (binary semaphore) */
+    //SEMA
+    ///* initialize the Morse_sema semaphore as binary, resource semaphore */
+    //QXSemaphore_init(&Morse_sema, /* pointer to semaphore to initialize */
+    //                 1U,  /* initial semaphore count (resource semaphore) */
+    //                 1U); /* maximum semaphore count (binary semaphore) */
+
+    //MUTEX
+    QXMutex_init(&Morse_mutex, 6U); /* priority ceiling 6 */
 }
 
 void BSP_ledRedOn(void) {
@@ -70,6 +78,7 @@ void BSP_ledBlueOff(void) {
 }
 
 void BSP_ledBlueToggle(void) {
+    //CRIT
     QF_CRIT_STAT_TYPE istat;
 
     QF_CRIT_ENTRY(istat);
@@ -86,6 +95,7 @@ void BSP_ledGreenOff(void) {
 }
 
 void BSP_ledGreenToggle(void) {
+    //CRIT
     QF_CRIT_STAT_TYPE istat;
 
     QF_CRIT_ENTRY(istat);
@@ -97,9 +107,19 @@ void BSP_sendMorseCode(uint32_t bitmask) {
     uint32_t volatile delay_ctr;
     enum { DOT_DELAY = 150 };
 
+    //LOCK
+    //QSchedStatus sstat;
+
     //SEMA
-    QXSemaphore_wait(&Morse_sema,  /* pointer to semaphore to wait on */
-                     QXTHREAD_NO_TIMEOUT); /* timeout for waiting */
+    //QXSemaphore_wait(&Morse_sema,  /* pointer to semaphore to wait on */
+    //                 QXTHREAD_NO_TIMEOUT); /* timeout for waiting */
+
+    //LOCK
+    //sstat = QXK_schedLock(5U); /* priority ceiling 5 */
+
+    //MUTEX
+    QXMutex_lock(&Morse_mutex,
+                 QXTHREAD_NO_TIMEOUT); /* timeout for waiting */
 
     for (; bitmask != 0U; bitmask <<= 1) {
         if ((bitmask & (1U << 31)) != 0U) {
@@ -118,7 +138,13 @@ void BSP_sendMorseCode(uint32_t bitmask) {
     }
 
     //SEMA
-    QXSemaphore_signal(&Morse_sema);  /* pointer to semaphore to signal */
+    //QXSemaphore_signal(&Morse_sema);  /* pointer to semaphore to signal */
+
+    //LOCK
+    //QXK_schedUnlock(sstat);
+
+    //MUTEX
+    QXMutex_unlock(&Morse_mutex);
 }
 
 /* callbacks ---------------------------------------------------------------*/

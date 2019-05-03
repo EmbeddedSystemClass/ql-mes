@@ -41,8 +41,9 @@ void main_blinky3(QXThread * const me) {
 }
 
 int main() {
-    BSP_init();
     QF_init();
+    BSP_init();
+
 
     /* initialize the SW1_sema semaphore as binary, signaling semaphore */
     QXSemaphore_init(&SW1_sema, /* pointer to semaphore to initialize */
