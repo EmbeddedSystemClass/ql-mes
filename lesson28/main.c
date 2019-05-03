@@ -8,12 +8,7 @@ uint32_t stack_blinky1[40];
 QXThread blinky1;
 void main_blinky1(QXThread * const me) {
     while (1) {
-        uint32_t volatile i;
-        for (i = 1900U + 1U; i != 0U; --i) {
-            //BSP_ledGreenOn();
-            //BSP_ledGreenOff();
-            BSP_ledGreenToggle();
-        }
+        BSP_sendMorseCode(0xA8EEE2A0U); /* SOS */
         QXThread_delay(1U); /* block for 1 tick */
     }
 }
@@ -39,10 +34,9 @@ uint32_t stack_blinky3[40];
 QXThread blinky3;
 void main_blinky3(QXThread * const me) {
     while (1) {
-        BSP_ledRedOn();
-        QXThread_delay(BSP_TICKS_PER_SEC / 3U);
-        BSP_ledRedOff();
-        QXThread_delay(BSP_TICKS_PER_SEC * 3U / 5U);
+        BSP_sendMorseCode(0xE22A3800U); /* "TEST" */
+        BSP_sendMorseCode(0xE22A3800U); /* "TEST" */
+        QXThread_delay(5U);
     }
 }
 
