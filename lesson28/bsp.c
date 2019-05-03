@@ -11,7 +11,7 @@
 /* on-board switch */
 #define BTN_SW1   (1U << 4)
 
-static uint32_t volatile l_tickCtr;
+static QXSemaphore Morse_sema;
 
 void SysTick_Handler(void) {
     QXK_ISR_ENTRY();  /* inform QXK about entering an ISR */
@@ -46,6 +46,11 @@ void BSP_init(void) {
     GPIOF_AHB->IBE &= ~BTN_SW1; /* only one edge generate the interrupt */
     GPIOF_AHB->IEV &= ~BTN_SW1; /* a falling edge triggers the interrupt */
     GPIOF_AHB->IM  |= BTN_SW1;  /* enable GPIOF interrupt for SW1 */
+
+    /* initialize the Morse_sema semaphore as binary, signaling semaphore */
+    QXSemaphore_init(&Morse_sema, /* pointer to semaphore to initialize */
+                     1U,  /* initial semaphore count (singaling semaphore) */
+                     1U); /* maximum semaphore count (binary semaphore) */
 }
 
 void BSP_ledRedOn(void) {
@@ -92,6 +97,10 @@ void BSP_sendMorseCode(uint32_t bitmask) {
     uint32_t volatile delay_ctr;
     enum { DOT_DELAY = 150 };
 
+    //SEMA
+    QXSemaphore_wait(&Morse_sema,  /* pointer to semaphore to wait on */
+                     QXTHREAD_NO_TIMEOUT); /* timeout for waiting */
+
     for (; bitmask != 0U; bitmask <<= 1) {
         if ((bitmask & (1U << 31)) != 0U) {
             BSP_ledGreenOn();
@@ -107,6 +116,9 @@ void BSP_sendMorseCode(uint32_t bitmask) {
     for (delay_ctr = 7*DOT_DELAY;
          delay_ctr != 0U; --delay_ctr) {
     }
+
+    //SEMA
+    QXSemaphore_signal(&Morse_sema);  /* pointer to semaphore to signal */
 }
 
 /* callbacks ---------------------------------------------------------------*/
