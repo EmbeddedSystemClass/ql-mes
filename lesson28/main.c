@@ -12,9 +12,7 @@ void main_blinky1(QXThread * const me) {
         for (i = 1900U + 1U; i != 0U; --i) {
             //BSP_ledGreenOn();
             //BSP_ledGreenOff();
-            __disable_irq();
             BSP_ledGreenToggle();
-            __enable_irq();
         }
         QXThread_delay(1U); /* block for 1 tick */
     }

@@ -65,7 +65,11 @@ void BSP_ledBlueOff(void) {
 }
 
 void BSP_ledBlueToggle(void) {
+    QF_CRIT_STAT_TYPE istat;
+
+    QF_CRIT_ENTRY(istat);
     GPIOF_AHB->DATA ^= LED_BLUE;
+    QF_CRIT_EXIT(istat);
 }
 
 void BSP_ledGreenOn(void) {
@@ -77,9 +81,11 @@ void BSP_ledGreenOff(void) {
 }
 
 void BSP_ledGreenToggle(void) {
-    __disable_irq();
+    QF_CRIT_STAT_TYPE istat;
+
+    QF_CRIT_ENTRY(istat);
     GPIOF_AHB->DATA ^= LED_GREEN;
-    __enable_irq();
+    QF_CRIT_EXIT(istat);
 }
 
 /* callbacks ---------------------------------------------------------------*/
