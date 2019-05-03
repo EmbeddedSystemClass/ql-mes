@@ -77,7 +77,9 @@ void BSP_ledGreenOff(void) {
 }
 
 void BSP_ledGreenToggle(void) {
+    __disable_irq();
     GPIOF_AHB->DATA ^= LED_GREEN;
+    __enable_irq();
 }
 
 /* callbacks ---------------------------------------------------------------*/
